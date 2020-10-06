@@ -17,5 +17,5 @@ The problem was solved by: Danyil Orel, Igor Zhykovsky, Tetiana Vasilieva.
 - Tetyana Vasilieva:<br/>
     A. Co-creator of the new game concepts and logic.<br/>
     B. Implemented the design of the application.<br/>
-    C. Developed the algirithm concepts.<br/>
+    C. Developed the BFS algirithm concepts.<br/>
     D. Integrated the developed BFS algorithm in the game with Game Heroes and Sketches.
