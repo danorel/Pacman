@@ -5,13 +5,13 @@
 #### We have forked the project as core: [github](http://zetcode.com/javagames/pacman/)
 
 The problem was solved by: Danyil Orel, Igor Zhykovsky, Tetiana Vasilieva.
-- Danyil Orel: 
-    A. Implemented the BFS algorithm for finding the target on the map.
+- Danyil Orel:<br/>
+    A. Implemented the BFS algorithm for finding the target on the map.<br/> 
     
-- Igor Zhykovsky: 
-    A. Co-creator of the new game concepts and logic.
-    B. Fixed the core game, mentioned above. Integrated new game concepts, developed with Tetyana, in the code. 
+- Igor Zhykovsky:<br/>
+    A. Co-creator of the new game concepts and logic.<br/>
+    B. Fixed the core game, mentioned above. Integrated new game concepts, developed with Tetyana, in the code.<br/> 
     
-- Tetyana Vasilieva: 
-    A. Co-creator of the new game concepts and logic.
+- Tetyana Vasilieva:<br/>
+    A. Co-creator of the new game concepts and logic.<br/>
     B. Implemented the design of the application.
