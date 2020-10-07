@@ -21,20 +21,25 @@ import javax.swing.Timer;
 
 public class Board extends JPanel implements ActionListener {
 
-    private Dimension dimension;
-    private final Font smallFont = new Font("Helvetica", Font.BOLD, 14);
+    private Dimension
+            dimension;
+
+    private final Font
+            smallFont = new Font("Helvetica", Font.BOLD, 14);
 
     private Image ii;
-    private final Color dotColor = new Color(192, 192, 0);
-    private Color mazeColor;
+
+    private Color
+            colorMaze;
+    private final Color
+            dotColor = new Color(192, 192, 0);
 
     private boolean inGame = false;
 
     private final int
-            BLOCK_SIZE = 24,
-            N_BLOCKS = 15,
-            SCREEN_SIZE = N_BLOCKS * BLOCK_SIZE,
-            INT_MAX_GHOSTS = 12,
+            INT_BLOCK_SIZE = 24,
+            INT_BLOCKS = 15,
+            INT_SCREEN_SIZE = INT_BLOCKS * INT_BLOCK_SIZE,
             INT_PACMAN_DELAY = 2,
             INT_PACMAN_SPEED = 6,
             INT_PACMAN_ANIMATIONS = 4;
@@ -49,13 +54,6 @@ public class Board extends JPanel implements ActionListener {
 
     private final int
             INT_MAX_SPEED = 6;
-
-    private int[]
-            dx,
-            dy;
-
-    private Image
-            ghost;
 
     private Image
             pacman,
@@ -135,12 +133,9 @@ public class Board extends JPanel implements ActionListener {
 
     private void initVariables() {
 
-        arrDataScreen = new short[N_BLOCKS * N_BLOCKS];
-        mazeColor = new Color(5, 100, 5);
+        arrDataScreen = new short[INT_BLOCKS * INT_BLOCKS];
+        colorMaze = new Color(5, 100, 5);
         dimension = new Dimension(400, 400);
-
-        dx = new int[4];
-        dy = new int[4];
 
         timer = new Timer(20, this);
         timer.start();
@@ -184,9 +179,9 @@ public class Board extends JPanel implements ActionListener {
     private void showIntroScreen(Graphics2D g2d) {
 
         g2d.setColor(new Color(0, 32, 48));
-        g2d.fillRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
+        g2d.fillRect(50, INT_SCREEN_SIZE / 2 - 30, INT_SCREEN_SIZE - 100, 50);
         g2d.setColor(Color.white);
-        g2d.drawRect(50, SCREEN_SIZE / 2 - 30, SCREEN_SIZE - 100, 50);
+        g2d.drawRect(50, INT_SCREEN_SIZE / 2 - 30, INT_SCREEN_SIZE - 100, 50);
 
         String      message = "Press s to start.";
         Font        font    = new Font("Helvetica", Font.BOLD, 14);
@@ -194,7 +189,7 @@ public class Board extends JPanel implements ActionListener {
 
         g2d.setColor(Color.white);
         g2d.setFont(font);
-        g2d.drawString(message, (SCREEN_SIZE - metrics.stringWidth(message)) / 2, SCREEN_SIZE / 2);
+        g2d.drawString(message, (INT_SCREEN_SIZE - metrics.stringWidth(message)) / 2, INT_SCREEN_SIZE / 2);
     }
 
     private void drawScore(Graphics2D g) {
@@ -205,13 +200,13 @@ public class Board extends JPanel implements ActionListener {
         g.setFont(smallFont);
         g.setColor(new Color(96, 128, 255));
         s = "Score: " + intScore;
-        g.drawString(s, SCREEN_SIZE / 2 + 96, SCREEN_SIZE + 16);
+        g.drawString(s, INT_SCREEN_SIZE / 2 + 96, INT_SCREEN_SIZE + 16);
 
         for (i = 0; i < intPacmanLeft; i++) {
             g.drawImage(
                     pacman3left,
                     i * 28 + 8,
-                    SCREEN_SIZE + 1,
+                    INT_SCREEN_SIZE + 1,
                     this
             );
         }
@@ -222,7 +217,7 @@ public class Board extends JPanel implements ActionListener {
         short i = 0;
         boolean finished = true;
 
-        while (i < N_BLOCKS * N_BLOCKS && finished) {
+        while (i < INT_BLOCKS * INT_BLOCKS && finished) {
 
             if ((arrDataScreen[i] & 48) != 0)
                 finished = false;
@@ -253,8 +248,8 @@ public class Board extends JPanel implements ActionListener {
             view_dy = pacmand_y;
         }
 
-        if (pacman_x % BLOCK_SIZE == 0 && pacman_y % BLOCK_SIZE == 0) {
-            pos = pacman_x / BLOCK_SIZE + N_BLOCKS * (int) (pacman_y / BLOCK_SIZE);
+        if (pacman_x % INT_BLOCK_SIZE == 0 && pacman_y % INT_BLOCK_SIZE == 0) {
+            pos = pacman_x / INT_BLOCK_SIZE + INT_BLOCKS * (int) (pacman_y / INT_BLOCK_SIZE);
             ch = arrDataScreen[pos];
 
             if ((ch & 16) != 0) {
@@ -347,10 +342,10 @@ public class Board extends JPanel implements ActionListener {
         short i = 0;
         int x, y;
 
-        for (y = 0; y < SCREEN_SIZE; y += BLOCK_SIZE) {
-            for (x = 0; x < SCREEN_SIZE; x += BLOCK_SIZE) {
+        for (y = 0; y < INT_SCREEN_SIZE; y += INT_BLOCK_SIZE) {
+            for (x = 0; x < INT_SCREEN_SIZE; x += INT_BLOCK_SIZE) {
 
-                g2d.setColor(mazeColor);
+                g2d.setColor(colorMaze);
                 g2d.setStroke(new BasicStroke(2));
 
                 if ((arrDataScreen[i] & 1) != 0) {
@@ -358,7 +353,7 @@ public class Board extends JPanel implements ActionListener {
                             x,
                             y,
                             x,
-                            y + BLOCK_SIZE - 1
+                            y + INT_BLOCK_SIZE - 1
                     );
                 }
 
@@ -366,26 +361,26 @@ public class Board extends JPanel implements ActionListener {
                     g2d.drawLine(
                             x,
                             y,
-                            x + BLOCK_SIZE - 1,
+                            x + INT_BLOCK_SIZE - 1,
                             y
                     );
                 }
 
                 if ((arrDataScreen[i] & 4) != 0) {
                     g2d.drawLine(
-                            x + BLOCK_SIZE - 1,
+                            x + INT_BLOCK_SIZE - 1,
                             y,
-                            x + BLOCK_SIZE - 1,
-                            y + BLOCK_SIZE - 1
+                            x + INT_BLOCK_SIZE - 1,
+                            y + INT_BLOCK_SIZE - 1
                     );
                 }
 
                 if ((arrDataScreen[i] & 8) != 0) {
                     g2d.drawLine(
                             x,
-                            y + BLOCK_SIZE - 1,
-                            x + BLOCK_SIZE - 1,
-                            y + BLOCK_SIZE - 1
+                            y + INT_BLOCK_SIZE - 1,
+                            x + INT_BLOCK_SIZE - 1,
+                            y + INT_BLOCK_SIZE - 1
                     );
                 }
 
@@ -411,7 +406,7 @@ public class Board extends JPanel implements ActionListener {
 
         int i;
 
-        for (i = 0; i < N_BLOCKS * N_BLOCKS; i++)
+        for (i = 0; i < INT_BLOCKS * INT_BLOCKS; i++)
             arrDataScreen[i] = arrDataLevel[i];
 
         continueLevel();
@@ -419,14 +414,14 @@ public class Board extends JPanel implements ActionListener {
 
     private void continueLevel() {
 
-        pacman_x = 7 * BLOCK_SIZE;
-        pacman_y = 11 * BLOCK_SIZE;
+        req_dx    = 0;
+        req_dy    = 0;
+        view_dx   = -1;
+        view_dy   = 0;
         pacmand_x = 0;
         pacmand_y = 0;
-        req_dx = 0;
-        req_dy = 0;
-        view_dx = -1;
-        view_dy = 0;
+        pacman_x  = 7 * INT_BLOCK_SIZE;
+        pacman_y  = 11 * INT_BLOCK_SIZE;
     }
 
     @Override
