@@ -1,9 +1,9 @@
 package src.main.java.bfs;
 
 public class BFS {
-    private Node root;
+    public Node root;
 
-    BFS() {
+    public BFS() {
         root = null;
     }
 
@@ -23,7 +23,7 @@ public class BFS {
         root = insert(root, v);
     }
 
-    public Node insert(Node node, int v) {
+    private Node insert(Node node, int v) {
         if (node == null)
             return new Node(v);
 
@@ -35,7 +35,15 @@ public class BFS {
         return node;
     }
 
-    public void levelOrderTraversal(Node node, int level) {
+    public void levelOrder() {
+        int height = calculateTreeHeight(root);
+
+        for(int i = 0; i < height; i++){
+            levelOrderTraversal(root, i);
+        }
+    }
+
+    private void levelOrderTraversal(Node node, int level) {
         if (node == null)
             return;
 
@@ -44,6 +52,17 @@ public class BFS {
         else {
             levelOrderTraversal(node.l, level - 1);
             levelOrderTraversal(node.r, level - 1);
+        }
+    }
+
+    private int calculateTreeHeight(Node root){
+        if (root == null)
+            return 0;
+        else {
+            int lsh = calculateTreeHeight(root.l);
+            int rsh = calculateTreeHeight(root.r);
+
+            return Math.max(lsh, rsh) + 1;
         }
     }
 }
