@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -86,25 +87,27 @@ public class Board extends JPanel implements ActionListener {
             view_dx,
             view_dy;
 
+    private short[]
+            arrDataScreen,
+            arrDataCoins;
     private final short arrDataLevel[] = {
-            19, 26, 26, 26, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
-            21, 0, 0, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 0, 0, 0, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20,
-            21, 0, 0, 0, 17, 16, 16, 24, 16, 16, 16, 16, 16, 16, 20,
-            17, 18, 18, 18, 16, 16, 20, 0, 17, 16, 16, 16, 16, 16, 20,
-            17, 16, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 16, 24, 20,
-            25, 16, 16, 16, 24, 24, 28, 0, 25, 24, 24, 16, 20, 0, 21,
-            1, 17, 16, 20, 0, 0, 0, 0, 0, 0, 0, 17, 20, 0, 21,
-            1, 17, 16, 16, 18, 18, 22, 0, 19, 18, 18, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 20, 0, 17, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 16, 18, 16, 16, 16, 16, 20, 0, 21,
-            1, 17, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 20, 0, 21,
+            3, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6,
+            21, 0, 0, 0, 1, 0, 0, 0, 0, 0, 16, 0, 0, 0, 4,
+            21, 0, 0, 0, 1, 16, 0, 16, 16, 16, 16, 16, 16, 16, 20,
+            21, 0, 0, 0, 1, 0, 0, 8, 0, 0, 0, 0, 0, 0, 20,
+            17, 2, 2, 2, 0, 0, 4, 0, 1, 0, 0, 0, 0, 16, 20,
+            17, 0, 16, 0, 0, 0, 4, 0, 17, 16, 16, 16, 16, 24, 20,
+            25, 0, 0, 0, 8, 8, 12, 0, 25, 24, 24, 16, 20, 0, 21,
+            1, 1, 16, 20, 0, 0, 0, 0, 0, 0, 0, 17, 20, 0, 21,
+            1, 1, 0, 0, 2, 2, 22, 0, 19, 18, 18, 16, 20, 0, 21,
+            1, 1, 0, 0, 0, 0, 20, 0, 1, 0, 0, 0, 4, 0, 5,
+            1, 1, 0, 0, 0, 0, 20, 0, 1, 0, 0, 0, 4, 0, 5,
+            1, 1, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 4, 0, 21,
+            1, 1, 0, 0, 16, 16, 0, 0, 0, 0, 0, 0, 20, 0, 21,
             1, 25, 24, 24, 24, 24, 24, 24, 24, 24, 16, 16, 16, 18, 20,
             9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 25, 24, 24, 24, 28
     };
 
-    private short[] arrDataScreen;
     private Timer timer;
 
     Board() {
@@ -133,7 +136,9 @@ public class Board extends JPanel implements ActionListener {
 
     private void initVariables() {
 
+        arrDataCoins  = new short[INT_BLOCKS * INT_BLOCKS];
         arrDataScreen = new short[INT_BLOCKS * INT_BLOCKS];
+
         colorMaze = new Color(5, 100, 5);
         dimension = new Dimension(400, 400);
 
@@ -171,6 +176,7 @@ public class Board extends JPanel implements ActionListener {
 
     private void playGame(Graphics2D g2d) {
 
+        initCoinMap();
         movePacman();
         drawPacman(g2d);
         checkMaze();
@@ -452,6 +458,18 @@ public class Board extends JPanel implements ActionListener {
         g2d.dispose();
     }
 
+    private void initCoinMap() {
+
+        int i;
+
+        for (i = 0; i < INT_BLOCKS * INT_BLOCKS; ++i) {
+            if ((arrDataScreen[i] / 16) >= 1)
+                arrDataCoins[i] = 1;
+            else
+                arrDataCoins[i] = 0;
+        }
+    }
+
     class TAdapter extends KeyAdapter {
 
         @Override
@@ -493,8 +511,11 @@ public class Board extends JPanel implements ActionListener {
 
             int key = evt.getKeyCode();
 
-            if (key == Event.LEFT || key == Event.RIGHT
-                    || key == Event.UP || key == Event.DOWN) {
+            if (
+                    key == Event.LEFT ||
+                    key == Event.RIGHT ||
+                    key == Event.UP ||
+                    key == Event.DOWN) {
                 req_dx = 0;
                 req_dy = 0;
             }
