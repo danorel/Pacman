@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
@@ -78,8 +77,8 @@ public class Board extends JPanel implements ActionListener {
     private int
             pacman_x,
             pacman_y,
-            pacmand_x,
-            pacmand_y;
+            pacman_dx,
+            pacman_dy;
 
     private int
             req_dx,
@@ -88,9 +87,10 @@ public class Board extends JPanel implements ActionListener {
             view_dy;
 
     private short[]
-            arrDataScreen,
-            arrDataCoins;
-    private final short arrDataLevel[] = {
+            arrDataMapScreen,
+            arrDataMapCoins;
+
+    private final short arrDataMap[] = {
             3, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6,
             21, 0, 0, 0, 1, 0, 0, 0, 0, 0, 16, 0, 0, 0, 4,
             21, 0, 0, 0, 1, 16, 0, 16, 16, 16, 16, 16, 16, 16, 20,
@@ -136,8 +136,8 @@ public class Board extends JPanel implements ActionListener {
 
     private void initVariables() {
 
-        arrDataCoins  = new short[INT_BLOCKS * INT_BLOCKS];
-        arrDataScreen = new short[INT_BLOCKS * INT_BLOCKS];
+        arrDataMapCoins = new short[INT_BLOCKS * INT_BLOCKS];
+        arrDataMapScreen = new short[INT_BLOCKS * INT_BLOCKS];
 
         colorMaze = new Color(5, 100, 5);
         dimension = new Dimension(400, 400);
@@ -176,7 +176,8 @@ public class Board extends JPanel implements ActionListener {
 
     private void playGame(Graphics2D g2d) {
 
-        initCoinMap();
+        System.out.println(getPacmanPosition());
+        findCoinMap();
         movePacman();
         drawPacman(g2d);
         checkMaze();
@@ -225,7 +226,7 @@ public class Board extends JPanel implements ActionListener {
 
         while (i < INT_BLOCKS * INT_BLOCKS && finished) {
 
-            if ((arrDataScreen[i] & 48) != 0)
+            if ((arrDataMapScreen[i] & 48) != 0)
                 finished = false;
 
             i++;
@@ -247,19 +248,19 @@ public class Board extends JPanel implements ActionListener {
         int pos;
         short ch;
 
-        if (req_dx == -pacmand_x && req_dy == -pacmand_y) {
-            pacmand_x = req_dx;
-            pacmand_y = req_dy;
-            view_dx = pacmand_x;
-            view_dy = pacmand_y;
+        if (req_dx == -pacman_dx && req_dy == -pacman_dy) {
+            pacman_dx = req_dx;
+            pacman_dy = req_dy;
+            view_dx = pacman_dx;
+            view_dy = pacman_dy;
         }
 
         if (pacman_x % INT_BLOCK_SIZE == 0 && pacman_y % INT_BLOCK_SIZE == 0) {
             pos = pacman_x / INT_BLOCK_SIZE + INT_BLOCKS * (int) (pacman_y / INT_BLOCK_SIZE);
-            ch = arrDataScreen[pos];
+            ch = arrDataMapScreen[pos];
 
             if ((ch & 16) != 0) {
-                arrDataScreen[pos] = (short) (ch & 15);
+                arrDataMapScreen[pos] = (short) (ch & 15);
                 intScore++;
             }
 
@@ -269,24 +270,24 @@ public class Board extends JPanel implements ActionListener {
                         || (req_dx == 1 && req_dy == 0 && (ch & 4) != 0)
                         || (req_dx == 0 && req_dy == -1 && (ch & 2) != 0)
                         || (req_dx == 0 && req_dy == 1 && (ch & 8) != 0))) {
-                    pacmand_x = req_dx;
-                    pacmand_y = req_dy;
-                    view_dx = pacmand_x;
-                    view_dy = pacmand_y;
+                    pacman_dx = req_dx;
+                    pacman_dy = req_dy;
+                    view_dx = pacman_dx;
+                    view_dy = pacman_dy;
                 }
             }
 
             // Check for standstill
-            if ((pacmand_x == -1 && pacmand_y == 0 && (ch & 1) != 0)
-                    || (pacmand_x == 1 && pacmand_y == 0 && (ch & 4) != 0)
-                    || (pacmand_x == 0 && pacmand_y == -1 && (ch & 2) != 0)
-                    || (pacmand_x == 0 && pacmand_y == 1 && (ch & 8) != 0)) {
-                pacmand_x = 0;
-                pacmand_y = 0;
+            if ((pacman_dx == -1 && pacman_dy == 0 && (ch & 1) != 0)
+                    || (pacman_dx == 1 && pacman_dy == 0 && (ch & 4) != 0)
+                    || (pacman_dx == 0 && pacman_dy == -1 && (ch & 2) != 0)
+                    || (pacman_dx == 0 && pacman_dy == 1 && (ch & 8) != 0)) {
+                pacman_dx = 0;
+                pacman_dy = 0;
             }
         }
-        pacman_x = pacman_x + INT_PACMAN_SPEED * pacmand_x;
-        pacman_y = pacman_y + INT_PACMAN_SPEED * pacmand_y;
+        pacman_x = pacman_x + INT_PACMAN_SPEED * pacman_dx;
+        pacman_y = pacman_y + INT_PACMAN_SPEED * pacman_dy;
     }
 
     private void drawPacman(Graphics2D g2d) {
@@ -354,7 +355,7 @@ public class Board extends JPanel implements ActionListener {
                 g2d.setColor(colorMaze);
                 g2d.setStroke(new BasicStroke(2));
 
-                if ((arrDataScreen[i] & 1) != 0) {
+                if ((arrDataMapScreen[i] & 1) != 0) {
                     g2d.drawLine(
                             x,
                             y,
@@ -363,7 +364,7 @@ public class Board extends JPanel implements ActionListener {
                     );
                 }
 
-                if ((arrDataScreen[i] & 2) != 0) {
+                if ((arrDataMapScreen[i] & 2) != 0) {
                     g2d.drawLine(
                             x,
                             y,
@@ -372,7 +373,7 @@ public class Board extends JPanel implements ActionListener {
                     );
                 }
 
-                if ((arrDataScreen[i] & 4) != 0) {
+                if ((arrDataMapScreen[i] & 4) != 0) {
                     g2d.drawLine(
                             x + INT_BLOCK_SIZE - 1,
                             y,
@@ -381,7 +382,7 @@ public class Board extends JPanel implements ActionListener {
                     );
                 }
 
-                if ((arrDataScreen[i] & 8) != 0) {
+                if ((arrDataMapScreen[i] & 8) != 0) {
                     g2d.drawLine(
                             x,
                             y + INT_BLOCK_SIZE - 1,
@@ -390,7 +391,7 @@ public class Board extends JPanel implements ActionListener {
                     );
                 }
 
-                if ((arrDataScreen[i] & 16) != 0) {
+                if ((arrDataMapScreen[i] & 16) != 0) {
                     g2d.setColor(dotColor);
                     g2d.fillRect(x + 11, y + 11, 2, 2);
                 }
@@ -413,7 +414,7 @@ public class Board extends JPanel implements ActionListener {
         int i;
 
         for (i = 0; i < INT_BLOCKS * INT_BLOCKS; i++)
-            arrDataScreen[i] = arrDataLevel[i];
+            arrDataMapScreen[i] = arrDataMap[i];
 
         continueLevel();
     }
@@ -424,8 +425,8 @@ public class Board extends JPanel implements ActionListener {
         req_dy    = 0;
         view_dx   = -1;
         view_dy   = 0;
-        pacmand_x = 0;
-        pacmand_y = 0;
+        pacman_dx = 0;
+        pacman_dy = 0;
         pacman_x  = 7 * INT_BLOCK_SIZE;
         pacman_y  = 11 * INT_BLOCK_SIZE;
     }
@@ -458,16 +459,25 @@ public class Board extends JPanel implements ActionListener {
         g2d.dispose();
     }
 
-    private void initCoinMap() {
+    private void findCoinMap() {
 
         int i;
 
         for (i = 0; i < INT_BLOCKS * INT_BLOCKS; ++i) {
-            if ((arrDataScreen[i] / 16) >= 1)
-                arrDataCoins[i] = 1;
+            if ((arrDataMapScreen[i] / 16) >= 1)
+                arrDataMapCoins[i] = 1;
             else
-                arrDataCoins[i] = 0;
+                arrDataMapCoins[i] = 0;
         }
+    }
+
+    private void findCoinClosest() {
+        
+    }
+
+    private int getPacmanPosition() {
+
+        return pacman_x / INT_BLOCK_SIZE + INT_BLOCKS * (int) (pacman_y / INT_BLOCK_SIZE);
     }
 
     class TAdapter extends KeyAdapter {
