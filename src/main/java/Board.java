@@ -292,11 +292,11 @@ public class Board extends JPanel implements ActionListener {
 
         if (view_dx == -1)
             drawPacmanLeft(g2d);
-        if (view_dx == 1)
+        else if (view_dx == 1)
             drawPacmanRight(g2d);
-        if (view_dy == -1)
+        else if (view_dy == -1)
             drawPacmanUp(g2d);
-        if (view_dy == -1)
+        else
             drawPacmanDown(g2d);
     }
 
