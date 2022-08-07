@@ -1,23 +1,20 @@
+import entities.*;
+
 import java.util.*;
 
-import entities.Action;
-import entities.Agent;
-import entities.State;
-import entities.World;
+class PacmanAStar {
 
-class PacmanDFS {
-
-    private static void play(World world, Agent initialAgent) {
+    private static void play(World world, Agent initialAgent, Agent targetAgent) {
         int count = 0;
         ArrayList<Agent> expandedAgents = new ArrayList<>();
 
-        Stack<Agent> stack = new Stack<>();
-        stack.push(initialAgent);
+        PriorityQueue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, prevAgent, targetAgent, 1, 0.1) - Score.fScore(initialAgent, nextAgent, targetAgent, 1, 0.1)));
+        queue.add(initialAgent);
 
         HashSet<String> visited = new HashSet<>();
 
-        while (!stack.empty()) {
-            Agent currentAgent = stack.pop();
+        while (queue.size() > 0) {
+            Agent currentAgent = queue.poll();
             if (currentAgent == null) {
                 continue;
             }
@@ -35,7 +32,7 @@ class PacmanDFS {
                 if (nextAgent != null) {
                     String nextState = String.valueOf(nextAgent.state);
                     if (!visited.contains(nextState)) {
-                        stack.push(nextAgent);
+                        queue.add(nextAgent);
                         visited.add(nextState);
                     }
                 }
@@ -80,8 +77,9 @@ class PacmanDFS {
         }
 
         World world = new World(grid, width, height);
+        Agent targetAgent = new Agent(new State(foodr, foodc));
         Agent initialAgent = new Agent(new State(packmanr, packmanc));
 
-        play(world, initialAgent);
+        play(world, initialAgent, targetAgent);
     }
 }
