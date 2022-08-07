@@ -12,6 +12,26 @@ public enum Action {
         this.name = name;
     }
 
+    public Action opposite() {
+        switch (this) {
+            case Up: {
+                return Down;
+            }
+            case Down: {
+                return Up;
+            }
+            case Left: {
+                return Right;
+            }
+            case Right: {
+                return Left;
+            }
+            default: {
+                throw new RuntimeException("Unknown action: " + this);
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return name;

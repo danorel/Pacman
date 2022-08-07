@@ -1,10 +1,14 @@
 package entities;
 
+import java.util.Stack;
+
 public class Agent {
     public State state;
     public double cost;
     public Agent parent;
     public Action action;
+
+    public Agent() { this(null, 0., null, null ); }
 
     public Agent(State state) {
         this(state, 0., null, null);
@@ -15,6 +19,55 @@ public class Agent {
         this.cost = cost;
         this.parent = parent;
         this.action = action;
+    }
+
+    public Agent(Agent anotherAgent) {
+        if (anotherAgent != null) {
+            Stack<Agent> stack = new Stack<>();
+
+            Agent headAgent = anotherAgent;
+
+            while (headAgent.parent != null) {
+                stack.add(headAgent);
+                headAgent = headAgent.parent;
+            }
+
+            this.state = new State(headAgent.state.r, headAgent.state.c);
+            Agent copyAgent = this;
+
+            while (!stack.empty()) {
+                Agent topAgent = stack.pop();
+                Agent nextAgent = new Agent();
+                copyAgent.parent = new Agent(new State(topAgent.state.r, topAgent.state.c), topAgent.cost, nextAgent, topAgent.action);
+                copyAgent = copyAgent.parent;
+            }
+        }
+    }
+
+    public Agent merge(World world, Agent commonAgent, Agent thatAgent) {
+        Agent mergeAgent = new Agent(thatAgent);
+
+        Agent mergeIterationAgent = mergeAgent;
+        while (mergeIterationAgent.state.r != commonAgent.state.r || mergeIterationAgent.state.c != commonAgent.state.c) {
+            mergeIterationAgent = mergeIterationAgent.parent;
+        }
+
+        mergeIterationAgent.parent = commonAgent.parent;
+
+        Agent commonIterationAgent = commonAgent;
+        while ((commonIterationAgent.state.r != this.state.r || commonIterationAgent.state.c != this.state.c)) {
+            commonIterationAgent = commonIterationAgent.parent;
+            Action mergeAction = null;
+            if (commonIterationAgent.action != null) {
+                mergeAction = commonIterationAgent.action.opposite();
+            }
+            double mergeCost = mergeIterationAgent.cost;
+            mergeIterationAgent = mergeIterationAgent.parent;
+            mergeIterationAgent.cost = mergeCost + 1;
+            mergeIterationAgent.action = mergeAction;
+        }
+
+        return mergeAgent;
     }
 
     public Agent transition(World world, Action action) {

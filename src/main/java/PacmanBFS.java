@@ -58,7 +58,6 @@ class PacmanBFS {
         }
 
         World world = new World(grid, width, height);
-        Agent targetAgent = new Agent(new State(foodr, foodc));
         Agent initialAgent = new Agent(new State(packmanr, packmanc));
 
         play(world, initialAgent);
