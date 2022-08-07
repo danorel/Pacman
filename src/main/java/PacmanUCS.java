@@ -1,31 +1,30 @@
 import entities.*;
-
-import java.util.*;
-
 import tests.TestInput;
 import tests.TestOutput;
 
-class PacmanAStar {
+import java.util.*;
 
-    private static void play(World world, Agent initialAgent, Agent targetAgent) {
+class PacmanUCS {
+
+    private static void play(World world, Agent initialAgent) {
         LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
         LinkedHashSet<String> visitedMoves = new LinkedHashSet<>();
 
-        Queue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, nextAgent, targetAgent) - Score.fScore(initialAgent, prevAgent, targetAgent)));
+        Queue<Agent> queue = new PriorityQueue<>((o1, o2) -> (int) (Score.gScore(initialAgent, o2) - Score.gScore(initialAgent, o1)));
         queue.add(initialAgent);
         visitedMoves.add(initialAgent.state.getMove());
 
         while (queue.size() > 0) {
             Agent currentAgent = queue.poll();
             exploreMoves.add(currentAgent.state.getMove());
-            if (currentAgent.isGoal(world)) {
-                TestOutput.printExpands(exploreMoves);
-                TestOutput.printPath(initialAgent, currentAgent);
-                return;
-            }
             for (Action action : Action.values()) {
                 Agent nextAgent = currentAgent.transition(world, action);
                 if (nextAgent != null) {
+                    if (nextAgent.isGoal(world)) {
+                        TestOutput.printExpands(exploreMoves);
+                        TestOutput.printPath(initialAgent, nextAgent);
+                        return;
+                    }
                     String nextMove = nextAgent.state.getMove();
                     if (!visitedMoves.contains(nextMove)) {
                         visitedMoves.add(nextAgent.state.getMove());
@@ -59,9 +58,8 @@ class PacmanAStar {
         }
 
         World world = new World(grid, width, height);
-        Agent targetAgent = new Agent(new State(foodr, foodc));
         Agent initialAgent = new Agent(new State(packmanr, packmanc));
 
-        play(world, initialAgent, targetAgent);
+        play(world, initialAgent);
     }
 }
