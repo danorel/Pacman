@@ -21,50 +21,82 @@ public class Agent {
         this.action = action;
     }
 
-    public Agent(Agent anotherAgent) {
-        if (anotherAgent != null) {
-            Stack<Agent> stack = new Stack<>();
+    public Agent(Agent thatAgent) {
+        if (thatAgent != null) {
+            Agent thisIterAgent = this;
+            Agent thatIterAgent = thatAgent;
 
-            Agent headAgent = anotherAgent;
-
-            while (headAgent.parent != null) {
-                stack.add(headAgent);
-                headAgent = headAgent.parent;
-            }
-
-            this.state = new State(headAgent.state.r, headAgent.state.c);
-            Agent copyAgent = this;
-
-            while (!stack.empty()) {
-                Agent topAgent = stack.pop();
-                Agent nextAgent = new Agent();
-                copyAgent.parent = new Agent(new State(topAgent.state.r, topAgent.state.c), topAgent.cost, nextAgent, topAgent.action);
-                copyAgent = copyAgent.parent;
+            while (thatIterAgent != null) {
+                thisIterAgent.state = new State(thatIterAgent.state.r, thatIterAgent.state.c);
+                thisIterAgent.cost = thatIterAgent.cost;
+                thisIterAgent.action = thatIterAgent.action;
+                thisIterAgent.parent = new Agent();
+                thatIterAgent = thatIterAgent.parent;
+                thisIterAgent = thisIterAgent.parent;
             }
         }
     }
 
-    public Agent merge(World world, Agent commonAgent, Agent thatAgent) {
-        Agent mergeAgent = new Agent(thatAgent);
+    public int size() {
+        if (this.parent == null) {
+            return 0;
+        }
+        int size = 0;
+        Agent thisIterAgent = this.parent;
+        while (thisIterAgent.parent != null) {
+            ++size;
+            thisIterAgent = thisIterAgent.parent;
+        }
+        return size - 1;
+    }
 
-        Agent mergeIterationAgent = mergeAgent;
-        while (mergeIterationAgent.state.r != commonAgent.state.r || mergeIterationAgent.state.c != commonAgent.state.c) {
-            mergeIterationAgent = mergeIterationAgent.parent;
+    public Agent reverse() {
+        Agent copy = new Agent();
+
+        Stack<Agent> stack = new Stack<>();
+
+        Agent thatIterAgent = this;
+        while (thatIterAgent != null) {
+            stack.push(thatIterAgent);
+            thatIterAgent = thatIterAgent.parent;
         }
 
-        mergeIterationAgent.parent = commonAgent.parent;
-
-        Agent commonIterationAgent = commonAgent;
-        while ((commonIterationAgent.state.r != this.state.r || commonIterationAgent.state.c != this.state.c)) {
-            commonIterationAgent = commonIterationAgent.parent;
-            Action mergeAction = null;
-            if (commonIterationAgent.action != null) {
-                mergeAction = commonIterationAgent.action.opposite();
+        Agent thisIterAgent = copy;
+        while (!stack.empty()) {
+            thatIterAgent = stack.pop();
+            if (thatIterAgent.state != null) {
+                thisIterAgent.state = new State(thatIterAgent.state.r, thatIterAgent.state.c);
             }
-            double mergeCost = mergeIterationAgent.cost;
-            mergeIterationAgent = mergeIterationAgent.parent;
-            mergeIterationAgent.cost = mergeCost + 1;
-            mergeIterationAgent.action = mergeAction;
+            thisIterAgent.cost = thatIterAgent.cost;
+            thisIterAgent.action = thatIterAgent.action;
+            thisIterAgent.parent = new Agent();
+            thisIterAgent = thisIterAgent.parent;
+        }
+
+        return copy;
+    }
+
+    public Agent merge(Agent commonAgent, Agent thatAgent) {
+        Agent mergeAgent = thatAgent.reverse();
+
+        Agent mergeIterAgent = mergeAgent;
+        while (mergeIterAgent.parent != null) {
+            mergeIterAgent = mergeIterAgent.parent;
+        }
+
+        mergeIterAgent.parent = new Agent(commonAgent);
+
+        Agent commonIterAgent = commonAgent;
+        while ((commonIterAgent.state.r != this.state.r || commonIterAgent.state.c != this.state.c)) {
+            commonIterAgent = commonIterAgent.parent;
+            Action mergeAction = null;
+            if (commonIterAgent.action != null) {
+                mergeAction = commonIterAgent.action.opposite();
+            }
+            double mergeCost = mergeIterAgent.cost;
+            mergeIterAgent = mergeIterAgent.parent;
+            mergeIterAgent.cost = mergeCost + 1;
+            mergeIterAgent.action = mergeAction;
         }
 
         return mergeAgent;

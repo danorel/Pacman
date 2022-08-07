@@ -6,71 +6,72 @@ import java.util.*;
 
 class PacmanUCSBidirectional {
 
-    private static Agent expand(World world, Agent initialAgent, Queue<Agent> queue, LinkedHashMap<String, Agent> currentAgentVisitedMoves, LinkedHashMap<String, Agent> anotherAgentVisitedMoves, LinkedHashSet<String> exploreMoves, Agent minPathAgent) {
-        Agent currentAgent = queue.poll();
+    private static Agent expand(World world, Agent thisAgent, Queue<Agent> thisQueue, LinkedHashMap<String, Agent> thisAgentMoves, LinkedHashMap<String, Agent> thatAgentMoves, LinkedHashSet<String> exploredMoves, Agent minAgent) {
+        Agent thisCurrentAgent = thisQueue.poll();
 
-        assert currentAgent != null;
-        exploreMoves.add(currentAgent.state.getMove());
+        assert thisCurrentAgent != null;
+        exploredMoves.add(thisCurrentAgent.state.getMove());
 
         for (Action action : Action.values()) {
-            Agent nextAgent = currentAgent.transition(world, action);
-            if (nextAgent == null) {
+            Agent thisNextAgent = thisCurrentAgent.transition(world, action);
+            if (thisNextAgent == null) {
                 continue;
             }
-            String nextMove = nextAgent.state.getMove();
-            Agent prevAgent = currentAgentVisitedMoves.get(nextMove);
-            if (prevAgent == null) {
-                prevAgent = nextAgent;
+            String thisNextMove = thisNextAgent.state.getMove();
+            Agent thisPrevAgent = thisAgentMoves.get(thisNextMove);
+            if (thisPrevAgent == null) {
+                thisPrevAgent = thisNextAgent;
             }
-            double nextCost = Score.gScore(initialAgent, nextAgent);
-            double prevCost = prevAgent.cost;
-            if (!currentAgentVisitedMoves.containsKey(nextMove) || nextCost < prevCost) {
-                queue.add(nextAgent);
-                currentAgentVisitedMoves.put(nextMove, nextAgent);
-                Agent anotherAgent = anotherAgentVisitedMoves.get(nextMove);
-                if (anotherAgent == null) {
+            double thisNextCost = Score.gScore(thisAgent, thisNextAgent);
+            double thisPrevCost = thisPrevAgent.cost;
+            if (!thisAgentMoves.containsKey(thisNextMove) || thisNextCost < thisPrevCost) {
+                thisQueue.add(thisNextAgent);
+                thisAgentMoves.put(thisNextMove, thisNextAgent);
+                Agent thatAgent = thatAgentMoves.get(thisNextMove);
+                if (thatAgent == null) {
                     continue;
                 }
-                Agent possiblePathAgent = initialAgent.merge(world, nextAgent, anotherAgent);
-                if (minPathAgent == null) {
-                    minPathAgent = possiblePathAgent;
+                Agent possibleMinAgent = thisAgent.merge(thisCurrentAgent, thatAgent);
+                if (minAgent == null) {
+                    minAgent = possibleMinAgent;
                 } else {
-                    if (possiblePathAgent.cost < minPathAgent.cost) {
-                        minPathAgent = possiblePathAgent;
+                    if (possibleMinAgent.cost < minAgent.cost) {
+                        minAgent = possibleMinAgent;
                     }
                 }
             }
         }
 
-        return minPathAgent;
+        return minAgent;
     }
 
     private static void play(World world, Agent pacmanAgent, Agent foodAgent) {
-        LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
+        LinkedHashSet<String> exploredMoves = new LinkedHashSet<>();
 
-        LinkedHashMap<String, Agent> pacmanVisitedMoves = new LinkedHashMap<>();
-        pacmanVisitedMoves.put(pacmanAgent.state.getMove(), pacmanAgent);
+        LinkedHashMap<String, Agent> pacmanAgentMoves = new LinkedHashMap<>();
+        pacmanAgentMoves.put(pacmanAgent.state.getMove(), pacmanAgent);
         Queue<Agent> pacmanQueue = new LinkedList<>();
         pacmanQueue.add(pacmanAgent);
 
-        LinkedHashMap<String, Agent> foodVisitedMoves = new LinkedHashMap<>();
-        foodVisitedMoves.put(foodAgent.state.getMove(), foodAgent);
+        LinkedHashMap<String, Agent> foodAgentMoves = new LinkedHashMap<>();
+        foodAgentMoves.put(foodAgent.state.getMove(), foodAgent);
         Queue<Agent> foodQueue = new LinkedList<>();
         foodQueue.add(foodAgent);
 
-        Agent minPathAgent = null;
+        Agent minAgent = null;
         while (pacmanQueue.size() > 0 && foodQueue.size() > 0) {
             Agent pacmanTopAgent = pacmanQueue.peek();
             Agent foodTopAgent = foodQueue.peek();
 
             if (pacmanTopAgent.cost < foodTopAgent.cost) {
-                minPathAgent = expand(world, pacmanAgent, pacmanQueue, pacmanVisitedMoves, foodVisitedMoves, exploreMoves, minPathAgent);
+                minAgent = expand(world, pacmanAgent, pacmanQueue, pacmanAgentMoves, foodAgentMoves, exploredMoves, minAgent);
             } else {
-                minPathAgent = expand(world, foodAgent, foodQueue, foodVisitedMoves, pacmanVisitedMoves, exploreMoves, minPathAgent);
+                minAgent = expand(world, foodAgent, foodQueue, foodAgentMoves, pacmanAgentMoves, exploredMoves, minAgent);
             }
         }
-        TestOutput.printExpands(exploreMoves);
-        TestOutput.printPath(pacmanAgent, minPathAgent);
+
+        TestOutput.printExpands(exploredMoves);
+        TestOutput.printPath(minAgent);
     }
 
     public static void main(String[] args) {

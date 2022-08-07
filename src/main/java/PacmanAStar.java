@@ -8,7 +8,7 @@ import tests.TestOutput;
 class PacmanAStar {
 
     private static void play(World world, Agent initialAgent, Agent targetAgent) {
-        LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
+        LinkedHashSet<String> exploredMoves = new LinkedHashSet<>();
         LinkedHashSet<String> visitedMoves = new LinkedHashSet<>();
 
         Queue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, nextAgent, targetAgent) - Score.fScore(initialAgent, prevAgent, targetAgent)));
@@ -17,10 +17,10 @@ class PacmanAStar {
 
         while (queue.size() > 0) {
             Agent currentAgent = queue.poll();
-            exploreMoves.add(currentAgent.state.getMove());
+            exploredMoves.add(currentAgent.state.getMove());
             if (currentAgent.isGoal(world)) {
-                TestOutput.printExpands(exploreMoves);
-                TestOutput.printPath(initialAgent, currentAgent);
+                TestOutput.printExpands(exploredMoves);
+                TestOutput.printPath(currentAgent);
                 return;
             }
             for (Action action : Action.values()) {
