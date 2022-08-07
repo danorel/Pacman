@@ -1,9 +1,9 @@
 package entities;
 
 public enum Action {
-    Right("RIGHT"),
-    Left("LEFT"),
     Up("UP"),
+    Left("LEFT"),
+    Right("RIGHT"),
     Down("DOWN");
 
     private String name;

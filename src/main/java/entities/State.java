@@ -9,6 +9,10 @@ public class State {
         this.c = c;
     }
 
+    public String getMove() {
+        return r + " " + c;
+    }
+
     @Override
     public String toString() {
         return "State{" +
