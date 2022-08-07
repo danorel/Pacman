@@ -5,45 +5,42 @@ import entities.Agent;
 import entities.State;
 import entities.World;
 import tests.TestInput;
+import tests.TestOutput;
 
 class PacmanDFS {
 
-    private static Agent play(World world, Agent initialAgent) {
-        LinkedHashSet<String> popMoves = new LinkedHashSet<>();
-        LinkedHashSet<String> pushMoves = new LinkedHashSet<>();
+    private static void play(World world, Agent initialAgent) {
+        LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
+        LinkedHashSet<String> visitedMoves = new LinkedHashSet<>();
 
         Stack<Agent> stack = new Stack<>();
         stack.push(initialAgent);
-        pushMoves.add(initialAgent.state.getMove());
+        visitedMoves.add(initialAgent.state.getMove());
 
         while (!stack.empty()) {
             Agent currentAgent = stack.pop();
-            popMoves.add(currentAgent.state.getMove());
+            exploreMoves.add(currentAgent.state.getMove());
             if (currentAgent.isGoal(world)) {
-                System.out.printf("%d%n", popMoves.size());
-                for (String popMove : popMoves) {
-                    System.out.printf("%s%n", popMove);
-                }
-                return currentAgent;
+                TestOutput.printExpands(exploreMoves);
+                TestOutput.printPath(initialAgent, currentAgent);
+                return;
             }
             for (Action action : Action.values()) {
                 Agent nextAgent = currentAgent.transition(world, action);
                 if (nextAgent != null) {
                     String nextMove = nextAgent.state.getMove();
-                    if (!pushMoves.contains(nextMove)) {
-                        pushMoves.add(nextAgent.state.getMove());
+                    if (!visitedMoves.contains(nextMove)) {
+                        visitedMoves.add(nextAgent.state.getMove());
                         stack.push(nextAgent);
                     }
                 }
             }
         }
-
-        return null;
     }
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(TestInput.TEST_1);
+        Scanner scanner = new Scanner(TestInput.TEST_3);
 
         int packmanr = scanner.nextInt();
         int packmanc = scanner.nextInt();
@@ -66,21 +63,7 @@ class PacmanDFS {
 
         World world = new World(grid, width, height);
         Agent initialAgent = new Agent(new State(packmanr, packmanc));
-        Agent targetAgent = play(world, initialAgent);
 
-        LinkedHashSet<String> pathMoves = new LinkedHashSet<>();
-        if (targetAgent != null) {
-            while (targetAgent != initialAgent) {
-                pathMoves.add(targetAgent.state.getMove());
-                targetAgent = targetAgent.parent;
-            }
-            System.out.printf("%d%n", pathMoves.size());
-            List<String> reversePathMoves = new ArrayList<>(pathMoves);
-            Collections.reverse(reversePathMoves);
-            System.out.printf("%s%n", initialAgent.state.getMove());
-            for (String pathMove : reversePathMoves) {
-                System.out.printf("%s%n", pathMove);
-            }
-        }
+        play(world, initialAgent);
     }
 }

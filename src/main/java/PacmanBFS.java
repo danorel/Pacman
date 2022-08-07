@@ -1,41 +1,34 @@
 import entities.*;
 import tests.TestInput;
+import tests.TestOutput;
 
 import java.util.*;
 
 class PacmanBFS {
 
-    private static void play(World world, Agent initialAgent, Agent targetAgent) {
-        int count = 0;
-        ArrayList<Agent> expandedAgents = new ArrayList<>();
+    private static void play(World world, Agent initialAgent) {
+        LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
+        LinkedHashSet<String> visitedMoves = new LinkedHashSet<>();
 
-        PriorityQueue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.gScore(initialAgent, prevAgent) - Score.gScore(initialAgent, nextAgent)));
+        Queue<Agent> queue = new LinkedList<>();
         queue.add(initialAgent);
-
-        HashSet<String> visited = new HashSet<>();
-        visited.add(String.valueOf(initialAgent.state));
+        visitedMoves.add(initialAgent.state.getMove());
 
         while (queue.size() > 0) {
             Agent currentAgent = queue.poll();
-            if (currentAgent == null) {
-                continue;
-            }
-            ++count;
-            expandedAgents.add(currentAgent);
+            exploreMoves.add(currentAgent.state.getMove());
             if (currentAgent.isGoal(world)) {
-                System.out.printf("%d%n", count);
-                for (Agent expandedAgent : expandedAgents) {
-                    System.out.printf("%d %d%n", expandedAgent.state.r, expandedAgent.state.c);
-                }
+                TestOutput.printExpands(exploreMoves);
+                TestOutput.printPath(initialAgent, currentAgent);
                 return;
             }
             for (Action action : Action.values()) {
                 Agent nextAgent = currentAgent.transition(world, action);
                 if (nextAgent != null) {
-                    String nextState = String.valueOf(nextAgent.state);
-                    if (!visited.contains(nextState)) {
+                    String nextMove = nextAgent.state.getMove();
+                    if (!visitedMoves.contains(nextMove)) {
+                        visitedMoves.add(nextAgent.state.getMove());
                         queue.add(nextAgent);
-                        visited.add(nextState);
                     }
                 }
             }
@@ -44,7 +37,7 @@ class PacmanBFS {
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(TestInput.TEST_3);
+        Scanner scanner = new Scanner(TestInput.TEST_4);
 
         int packmanr = scanner.nextInt();
         int packmanc = scanner.nextInt();
@@ -69,6 +62,6 @@ class PacmanBFS {
         Agent targetAgent = new Agent(new State(foodr, foodc));
         Agent initialAgent = new Agent(new State(packmanr, packmanc));
 
-        play(world, initialAgent, targetAgent);
+        play(world, initialAgent);
     }
 }
