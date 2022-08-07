@@ -1,41 +1,34 @@
 import entities.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.*;
 
 import tests.TestInput;
+import tests.TestOutput;
 
 class PacmanAStar {
 
     private static void play(World world, Agent initialAgent, Agent targetAgent) {
-        int count = 0;
-        ArrayList<Agent> expandedAgents = new ArrayList<>();
+        LinkedHashSet<String> exploreMoves = new LinkedHashSet<>();
+        LinkedHashSet<String> visitedMoves = new LinkedHashSet<>();
 
-        PriorityQueue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, prevAgent, targetAgent, 1, 10) - Score.fScore(initialAgent, nextAgent, targetAgent, 1, 10)));
+        Queue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, prevAgent, targetAgent) - Score.fScore(initialAgent, nextAgent, targetAgent)));
         queue.add(initialAgent);
+        visitedMoves.add(initialAgent.state.getMove());
 
-        HashSet<String> visited = new HashSet<>();
-        visited.add(String.valueOf(initialAgent.state));
-
-        while (!queue.isEmpty()) {
+        while (queue.size() > 0) {
             Agent currentAgent = queue.poll();
-            ++count;
-            expandedAgents.add(currentAgent);
+            exploreMoves.add(currentAgent.state.getMove());
             if (currentAgent.isGoal(world)) {
-                System.out.printf("%d%n", count);
-                for (Agent expandedAgent : expandedAgents) {
-                    System.out.printf("%d %d%n", expandedAgent.state.r, expandedAgent.state.c);
-                }
+                TestOutput.printExpands(exploreMoves);
+                TestOutput.printPath(initialAgent, currentAgent);
                 return;
             }
             for (Action action : Action.values()) {
                 Agent nextAgent = currentAgent.transition(world, action);
                 if (nextAgent != null) {
-                    String nextState = String.valueOf(nextAgent.state);
-                    if (!visited.contains(nextState)) {
-                        visited.add(nextState);
+                    String nextMove = nextAgent.state.getMove();
+                    if (!visitedMoves.contains(nextMove)) {
+                        visitedMoves.add(nextAgent.state.getMove());
                         queue.add(nextAgent);
                     }
                 }
@@ -44,8 +37,7 @@ class PacmanAStar {
     }
 
     public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(TestInput.TEST_3);
+        Scanner scanner = new Scanner(TestInput.TEST_5);
 
         int packmanr = scanner.nextInt();
         int packmanc = scanner.nextInt();

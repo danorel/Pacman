@@ -39,8 +39,7 @@ class PacmanDFS {
     }
 
     public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(TestInput.TEST_3);
+        Scanner scanner = new Scanner(TestInput.TEST_5);
 
         int packmanr = scanner.nextInt();
         int packmanc = scanner.nextInt();
