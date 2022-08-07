@@ -2,7 +2,7 @@ package entities;
 
 public class Score {
 
-    private static final int Epsilon = 100;
+    private static final int Epsilon = 1000;
 
     private static double costDistance(Agent currentAgent, Agent nextAgent) {
         return Math.abs(nextAgent.cost - currentAgent.cost);

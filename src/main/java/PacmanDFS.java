@@ -4,6 +4,7 @@ import entities.Action;
 import entities.Agent;
 import entities.State;
 import entities.World;
+import tests.TestInput;
 
 class PacmanDFS {
 
@@ -44,21 +45,8 @@ class PacmanDFS {
     }
 
     public static void main(String[] args) {
-        /**
-         * 3 9
-         * 5 1
-         * 7 20
-         * %%%%%%%%%%%%%%%%%%%%
-         * %--------------%---%
-         * %-%%-%%-%%-%%-%%-%-%
-         * %--------P-------%-%
-         * %%%%%%%%%%%%%%%%%%-%
-         * %.-----------------%
-         * %%%%%%%%%%%%%%%%%%%%
-         */
-        String test1 = "3 9 5 1 7 20 %%%%%%%%%%%%%%%%%%%% %--------------%---% %-%%-%%-%%-%%-%%-%-% %--------P-------%-% %%%%%%%%%%%%%%%%%%-% %.-----------------% %%%%%%%%%%%%%%%%%%%%";
 
-        Scanner scanner = new Scanner(test1);
+        Scanner scanner = new Scanner(TestInput.TEST_3);
 
         int packmanr = scanner.nextInt();
         int packmanc = scanner.nextInt();

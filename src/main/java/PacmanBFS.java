@@ -1,26 +1,25 @@
 import entities.*;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.PriorityQueue;
-import java.util.Scanner;
-
 import tests.TestInput;
 
-class PacmanAStar {
+import java.util.*;
+
+class PacmanBFS {
 
     private static void play(World world, Agent initialAgent, Agent targetAgent) {
         int count = 0;
         ArrayList<Agent> expandedAgents = new ArrayList<>();
 
-        PriorityQueue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.fScore(initialAgent, prevAgent, targetAgent, 1, 10) - Score.fScore(initialAgent, nextAgent, targetAgent, 1, 10)));
+        PriorityQueue<Agent> queue = new PriorityQueue<>((prevAgent, nextAgent) -> (int) (Score.gScore(initialAgent, prevAgent) - Score.gScore(initialAgent, nextAgent)));
         queue.add(initialAgent);
 
         HashSet<String> visited = new HashSet<>();
         visited.add(String.valueOf(initialAgent.state));
 
-        while (!queue.isEmpty()) {
+        while (queue.size() > 0) {
             Agent currentAgent = queue.poll();
+            if (currentAgent == null) {
+                continue;
+            }
             ++count;
             expandedAgents.add(currentAgent);
             if (currentAgent.isGoal(world)) {
@@ -35,8 +34,8 @@ class PacmanAStar {
                 if (nextAgent != null) {
                     String nextState = String.valueOf(nextAgent.state);
                     if (!visited.contains(nextState)) {
-                        visited.add(nextState);
                         queue.add(nextAgent);
+                        visited.add(nextState);
                     }
                 }
             }
