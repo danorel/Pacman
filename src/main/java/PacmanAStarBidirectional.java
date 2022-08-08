@@ -4,12 +4,12 @@ import tests.TestOutput;
 
 import java.util.*;
 
-class PacmanUCSBidirectional {
+class PacmanAStarBidirectional {
 
-    private static Agent expand(World world, Agent thisAgent, Queue<Agent> thisQueue, LinkedHashMap<String, Agent> thisAgentMoves, LinkedHashMap<String, Agent> thatAgentMoves, LinkedHashSet<String> exploredMoves, Agent minAgent) {
+    private static Agent expand(World world, Agent thisAgent, Queue<Agent> thisQueue, LinkedHashMap<String, Agent> thisAgentMoves, Agent thatAgent, LinkedHashMap<String, Agent> thatAgentMoves, LinkedHashSet<String> exploredMoves, Agent minAgent) {
         Agent thisCurrentAgent = thisQueue.poll();
+        assert(thisCurrentAgent != null);
 
-        assert thisCurrentAgent != null;
         exploredMoves.add(thisCurrentAgent.state.getMove());
 
         for (Action action : Action.values()) {
@@ -22,8 +22,8 @@ class PacmanUCSBidirectional {
             if (thisPrevAgent == null) {
                 thisPrevAgent = thisNextAgent;
             }
-            double thisNextCost = Score.gScore(thisAgent, thisNextAgent);
-            double thisPrevCost = Score.gScore(thisAgent, thisPrevAgent);
+            double thisNextCost = Score.fScore(thisAgent, thisNextAgent, thatAgent);
+            double thisPrevCost = Score.fScore(thisAgent, thisPrevAgent, thatAgent);
             if (!thisAgentMoves.containsKey(thisNextMove) || thisNextCost < thisPrevCost) {
                 thisQueue.add(thisNextAgent);
                 thisAgentMoves.put(thisNextMove, thisNextAgent);
@@ -31,7 +31,7 @@ class PacmanUCSBidirectional {
                 if (thatPrevAgent == null) {
                     continue;
                 }
-                Agent possibleMinAgent = thisAgent.merge(thisCurrentAgent, thatPrevAgent);
+                Agent possibleMinAgent = thisAgent.merge(thisNextAgent, thatPrevAgent);
                 if (minAgent == null) {
                     minAgent = possibleMinAgent;
                 } else {
@@ -50,35 +50,34 @@ class PacmanUCSBidirectional {
 
         LinkedHashMap<String, Agent> pacmanAgentMoves = new LinkedHashMap<>();
         pacmanAgentMoves.put(pacmanAgent.state.getMove(), pacmanAgent);
-        Queue<Agent> pacmanQueue = new LinkedList<>();
+        Queue<Agent> pacmanQueue = new PriorityQueue<>((o1, o2) -> (int) (Score.fScore(pacmanAgent, o2, foodAgent) - Score.fScore(pacmanAgent, o1, foodAgent)));
         pacmanQueue.add(pacmanAgent);
 
         LinkedHashMap<String, Agent> foodAgentMoves = new LinkedHashMap<>();
         foodAgentMoves.put(foodAgent.state.getMove(), foodAgent);
-        Queue<Agent> foodQueue = new LinkedList<>();
+        Queue<Agent> foodQueue = new PriorityQueue<>((o1, o2) -> (int) (Score.fScore(foodAgent, o2, pacmanAgent) - Score.fScore(foodAgent, o1, pacmanAgent)));
         foodQueue.add(foodAgent);
 
         Agent minAgent = null;
         while (pacmanQueue.size() > 0 && foodQueue.size() > 0) {
-            Agent pacmanTopAgent = pacmanQueue.peek();
-            Agent foodTopAgent = foodQueue.peek();
+            Agent pacmanTop = pacmanQueue.peek();
+            Agent foodTop = foodQueue.peek();
 
-            if (pacmanTopAgent.cost < foodTopAgent.cost) {
-                minAgent = expand(world, pacmanAgent, pacmanQueue, pacmanAgentMoves, foodAgentMoves, exploredMoves, minAgent);
+            if (pacmanTop.cost < foodTop.cost) {
+                minAgent = expand(world, pacmanAgent, pacmanQueue, pacmanAgentMoves, foodAgent, foodAgentMoves, exploredMoves, minAgent);
             } else {
-                minAgent = expand(world, foodAgent, foodQueue, foodAgentMoves, pacmanAgentMoves, exploredMoves, minAgent);
+                minAgent = expand(world, foodAgent, foodQueue, foodAgentMoves, pacmanAgent, pacmanAgentMoves, exploredMoves, minAgent);
             }
         }
 
-        TestOutput.printExpands(exploredMoves);
         TestOutput.printPath(minAgent);
     }
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(TestInput.TEST_5);
 
-        int packmanr = scanner.nextInt();
-        int packmanc = scanner.nextInt();
+        int pacmanr = scanner.nextInt();
+        int pacmanc = scanner.nextInt();
 
         int foodr = scanner.nextInt();
         int foodc = scanner.nextInt();
@@ -98,7 +97,7 @@ class PacmanUCSBidirectional {
 
         World world = new World(grid, width, height);
         Agent foodAgent = new Agent(new State(foodr, foodc));
-        Agent pacmanAgent = new Agent(new State(packmanr, packmanc));
+        Agent pacmanAgent = new Agent(new State(pacmanr, pacmanc));
 
         play(world, pacmanAgent, foodAgent);
     }
